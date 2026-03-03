@@ -10,13 +10,17 @@ import pkceChallenge from 'pkce-challenge';
 import type { OAuthConfig, AuthState } from '@/types';
 
 // ============================================================================
-// CONFIGURACIÓN DESDE VARIABLES DE ENTORNO
+// CONFIGURACIÓN FIJA (para tu deploy actual)
 // ============================================================================
 
-// Frontend y worker URLs desplegados
-const CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID!;
-const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI!;
-const WORKER_EXCHANGE_URL = import.meta.env.VITE_WORKER_URL!;
+// Este Client ID viene de tu OAuth App en GitHub
+const CLIENT_ID = 'Ov23liQm8V6IPqfoy10Q';
+
+// URL de callback de tu frontend desplegado
+const REDIRECT_URI = 'https://textastic-git.pages.dev/callback';
+
+// URL de tu Worker que hace el intercambio seguro
+const WORKER_EXCHANGE_URL = 'https://github-oauth-worker.vertiljivenson9.workers.dev';
 
 // Scopes de GitHub
 const SCOPES = ['repo', 'user'];
@@ -27,9 +31,8 @@ const SCOPES = ['repo', 'user'];
 
 function getOAuthConfig(): OAuthConfig {
   if (!CLIENT_ID || !REDIRECT_URI || !WORKER_EXCHANGE_URL) {
-    throw new Error('[OAuth] Variables de entorno incompletas. Revisa VITE_GITHUB_CLIENT_ID, VITE_REDIRECT_URI y VITE_WORKER_URL');
+    throw new Error('[OAuth] Configuración incompleta. Revisa CLIENT_ID, REDIRECT_URI y WORKER_EXCHANGE_URL.');
   }
-
   return {
     clientId: CLIENT_ID,
     redirectUri: REDIRECT_URI,
