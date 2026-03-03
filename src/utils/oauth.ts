@@ -55,7 +55,7 @@ const STORAGE_KEY_VERIFIER = 'textastic_pkce_verifier';
 
 export async function generatePKCE(): Promise<{ codeChallenge: string; codeVerifier: string }> {
   const challenge = await pkceChallenge();
-  // CAMBIO: usar sessionStorage en lugar de localStorage
+  // Usamos sessionStorage para datos temporales (por pestaña)
   sessionStorage.setItem(STORAGE_KEY_VERIFIER, challenge.code_verifier);
   return {
     codeChallenge: challenge.code_challenge,
@@ -67,7 +67,7 @@ export function generateState(): string {
   const state = Array.from(crypto.getRandomValues(new Uint8Array(32)))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
-  // CAMBIO: usar sessionStorage en lugar de localStorage
+  // Usamos sessionStorage para datos temporales (por pestaña)
   sessionStorage.setItem(STORAGE_KEY_STATE, state);
   return state;
 }
@@ -94,7 +94,7 @@ export async function startOAuth(): Promise<void> {
 }
 
 // ============================================================================
-// CALLBACK Y OBTENCIÓN DEL TOKEN
+// CALLBACK Y OBTENCIÓN DEL TOKEN (con depuración mejorada)
 // ============================================================================
 
 export async function handleCallback(): Promise<string> {
@@ -107,11 +107,19 @@ export async function handleCallback(): Promise<string> {
   if (error) throw new Error(`[OAuth] GitHub error: ${errorDescription || error}`);
   if (!code) throw new Error('[OAuth] No se recibió código de autorización');
 
-  // CAMBIO: leer de sessionStorage
+  // Leer de sessionStorage
   const storedState = sessionStorage.getItem(STORAGE_KEY_STATE);
-  if (!storedState || storedState !== state) throw new Error('[OAuth] State no coincide (posible CSRF)');
+  
+  // --- DEPURACIÓN: mostrar valores si hay discrepancia ---
+  if (!storedState || storedState !== state) {
+    alert(`ERROR DE STATE:\nStored: ${storedState}\nURL: ${state}\nURL completa: ${window.location.href}`);
+    console.error('[STATE_DEBUG] storedState:', storedState);
+    console.error('[STATE_DEBUG] state from URL:', state);
+    console.error('[STATE_DEBUG] URL:', window.location.href);
+    throw new Error('[OAuth] State no coincide (posible CSRF)');
+  }
+  // -------------------------------------------------------
 
-  // CAMBIO: leer de sessionStorage
   const codeVerifier = sessionStorage.getItem(STORAGE_KEY_VERIFIER);
   if (!codeVerifier) throw new Error('[OAuth] code_verifier no encontrado');
 
@@ -134,10 +142,8 @@ export async function handleCallback(): Promise<string> {
   const accessToken = data.access_token;
   if (!accessToken) throw new Error('[OAuth] No se recibió access_token del worker');
 
-  // Guardar token en localStorage (persistente)
+  // Guardar token y limpiar almacenamiento temporal
   localStorage.setItem(STORAGE_KEY_TOKEN, accessToken);
-
-  // CAMBIO: limpiar de sessionStorage (ya no se necesitan)
   sessionStorage.removeItem(STORAGE_KEY_VERIFIER);
   sessionStorage.removeItem(STORAGE_KEY_STATE);
 
