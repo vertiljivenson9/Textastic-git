@@ -55,7 +55,8 @@ const STORAGE_KEY_VERIFIER = 'textastic_pkce_verifier';
 
 export async function generatePKCE(): Promise<{ codeChallenge: string; codeVerifier: string }> {
   const challenge = await pkceChallenge();
-  localStorage.setItem(STORAGE_KEY_VERIFIER, challenge.code_verifier);
+  // CAMBIO: usar sessionStorage en lugar de localStorage
+  sessionStorage.setItem(STORAGE_KEY_VERIFIER, challenge.code_verifier);
   return {
     codeChallenge: challenge.code_challenge,
     codeVerifier: challenge.code_verifier,
@@ -66,7 +67,8 @@ export function generateState(): string {
   const state = Array.from(crypto.getRandomValues(new Uint8Array(32)))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
-  localStorage.setItem(STORAGE_KEY_STATE, state);
+  // CAMBIO: usar sessionStorage en lugar de localStorage
+  sessionStorage.setItem(STORAGE_KEY_STATE, state);
   return state;
 }
 
@@ -105,10 +107,12 @@ export async function handleCallback(): Promise<string> {
   if (error) throw new Error(`[OAuth] GitHub error: ${errorDescription || error}`);
   if (!code) throw new Error('[OAuth] No se recibió código de autorización');
 
-  const storedState = localStorage.getItem(STORAGE_KEY_STATE);
+  // CAMBIO: leer de sessionStorage
+  const storedState = sessionStorage.getItem(STORAGE_KEY_STATE);
   if (!storedState || storedState !== state) throw new Error('[OAuth] State no coincide (posible CSRF)');
 
-  const codeVerifier = localStorage.getItem(STORAGE_KEY_VERIFIER);
+  // CAMBIO: leer de sessionStorage
+  const codeVerifier = sessionStorage.getItem(STORAGE_KEY_VERIFIER);
   if (!codeVerifier) throw new Error('[OAuth] code_verifier no encontrado');
 
   const config = getOAuthConfig();
@@ -130,10 +134,12 @@ export async function handleCallback(): Promise<string> {
   const accessToken = data.access_token;
   if (!accessToken) throw new Error('[OAuth] No se recibió access_token del worker');
 
-  // Guardar token y limpiar almacenamiento temporal
+  // Guardar token en localStorage (persistente)
   localStorage.setItem(STORAGE_KEY_TOKEN, accessToken);
-  localStorage.removeItem(STORAGE_KEY_VERIFIER);
-  localStorage.removeItem(STORAGE_KEY_STATE);
+
+  // CAMBIO: limpiar de sessionStorage (ya no se necesitan)
+  sessionStorage.removeItem(STORAGE_KEY_VERIFIER);
+  sessionStorage.removeItem(STORAGE_KEY_STATE);
 
   console.log('[OAuth] Token obtenido correctamente');
   return accessToken;
