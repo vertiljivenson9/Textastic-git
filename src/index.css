@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Tema oscuro por defecto (inspirado en editores de código) */
+    --background: 220 13% 10%;
+    --foreground: 0 0% 98%;
+    --card: 220 13% 12%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 13% 12%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 13% 18%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 220 13% 18%;
+    --muted-foreground: 220 9% 60%;
+    --accent: 220 13% 20%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 13% 20%;
+    --input: 220 13% 20%;
+    --ring: 217 91% 60%;
+    --radius: 0.5rem;
+    --sidebar-background: 220 13% 8%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 13% 18%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 220 13% 20%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  /* Scrollbar personalizado para el tema oscuro */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground));
+  }
+  
+  /* Animaciones */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.2s ease-in-out;
+  }
+  
+  /* Utilidades para el editor */
+  .editor-container {
+    @apply h-full w-full;
+  }
+  
+  /* Prevenir selección de texto en elementos de UI */
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+/* Estilos específicos para Monaco Editor */
+.monaco-editor {
+  @apply rounded-none !important;
+}
+
+/* Fix para el iframe de preview */
+iframe {
+  @apply bg-white;
+}
+
+/* Estilos para el resize handle */
+[data-panel-resize-handle-id] {
+  @apply transition-colors;
+}
+
+[data-panel-resize-handle-id]:hover {
+  @apply bg-primary/30;
+}
+
+/* Focus styles */
+*:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
+
+/* Transiciones suaves */
+button, a, input, textarea {
+  @apply transition-colors duration-150;
+}
